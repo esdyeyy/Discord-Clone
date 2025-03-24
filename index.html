@@ -11,7 +11,7 @@
 
     <style>
         body {
-            background-image: url("/Discord/assets/images/bg1.png");
+            background-image: url("/assets/images/bg1.png");
             background-color: black;
             margin: 0;
             padding: 0;
@@ -59,7 +59,7 @@
             display: inline-block;
         }
 
-        .link:hover{
+        .link:hover {
             background-color: #5865F2;
             border-radius: 10px;
         }
@@ -83,17 +83,17 @@
             cursor: pointer;
         }
 
-        .support-link-wrapper {
+        .support-link-wrapper, .safety-wrapper {
             position: relative;
-            display: inline-block; 
+            display: inline-block;
         }
-        /* Dropdown styles */
-        .dropdown {
-            display: none; 
+
+        .dropdown, .dropdown-safety {
+            display: none;
             position: absolute;
-            top: 100%; 
+            top: 100%;
             left: 0;
-            margin-top: 5px;
+            margin-top: 0;
             background-color: #5865F2;
             border-radius: 30px;
             padding: 30px;
@@ -101,6 +101,7 @@
             min-width: 150px;
             z-index: 1000;
         }
+
         .dropdown-link {
             display: block;
             color: white;
@@ -111,24 +112,36 @@
         }
 
         .dropdown-link:hover {
-            color:#ACB2F9;
+            color: #ACB2F9;
             border-radius: 3px;
             transition-duration: 0.3s;
+        }
+
+        .support-link-wrapper:hover .dropdown,
+        .safety-wrapper:hover .dropdown-safety {
+            display: block;
         }
     </style>
 </head>
 <body>
-    <div class = "content-wrapper">
-
+    <div class="content-wrapper">
         <div class="navbar-wrapper">
             <div class="navbar-logo">
-                <img class="logo" src="/Discord/assets/images/logo-with-name.png" alt="Discord Logo">
+                <img class="logo" src="/assets/images/logo-with-name.png" alt="Discord Logo">
             </div>
             <div class="navbar-links">
                 <a class="link" href="#">Download</a>
                 <a class="link" href="#">Nitro</a>
                 <a class="link" href="#">Discover</a>
-                <a class="link" href="#">Safety</a>
+                <div class="safety-wrapper">
+                    <a class="link safety-link" href="#">Safety</a>
+                    <div class="dropdown-safety">
+                        <a class="dropdown-link" href="#">Help Center</a>
+                        <a class="dropdown-link" href="#">Contact Us</a>
+                        <a class="dropdown-link" href="#">FAQ</a>
+                        <a class="dropdown-link" href="#">Community</a>
+                    </div>
+                </div>
                 <a class="link" href="#">Quests</a>
                 <div class="support-link-wrapper">
                     <a class="link support-link" href="#">Support</a>
@@ -139,32 +152,100 @@
                         <a class="dropdown-link" href="#">Community</a>
                     </div>
                 </div>
-                <a class="link" href="#">Blog</a>
+                <a class="link blog-link" href="#">Blog</a>
                 <a class="link" href="#">Merch</a>
-                <a class="link" href="#">Careers</a>
+                <a class="link careers-link" href="#">Careers</a>
             </div>
             <div class="navbar-login-wrapper">
                 <button class="navbar-login">Log In</button>
             </div>
         </div>
-
     </div>
-    
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const supportLinkWrapper = document.querySelector('.support-link-wrapper');
-            const dropdown = supportLinkWrapper.querySelector('.dropdown');
-
-
-            supportLinkWrapper.addEventListener('mouseenter', function() {
-                dropdown.style.display = 'block';
-                
+            // 1. Fetch User Data on Login Button Click
+            const loginButton = document.querySelector('.navbar-login');
+            loginButton.addEventListener('click', function(e) {
+                e.preventDefault(); // Prevent default button behavior
+                fetch('https://jsonplaceholder.typicode.com/users/1')
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(`User Data: Name - ${data.name}, Email - ${data.email}`);
+                    })
+                    .catch(error => console.error('Error fetching user data:', error));
             });
 
+            // 2. Fetch Support Articles on Support Link Hover
+            const supportLinkWrapper = document.querySelector('.support-link-wrapper');
+            const supportDropdown = document.querySelector('.dropdown');
+            let supportLoaded = false;
+            supportLinkWrapper.addEventListener('mouseenter', function() {
+                if (!supportLoaded) {
+                    fetch('https://jsonplaceholder.typicode.com/posts?_limit=4')
+                        .then(response => response.json())
+                        .then(data => {
+                            supportDropdown.innerHTML = ''; // Clear existing content
+                            data.forEach(post => {
+                                const link = document.createElement('a');
+                                link.className = 'dropdown-link';
+                                link.href = '#';
+                                link.textContent = post.title.substring(0, 20) + '...';
+                                supportDropdown.appendChild(link);
+                            });
+                            supportLoaded = true; // Prevent refetching on every hover
+                        })
+                        .catch(error => console.error('Error fetching support articles:', error));
+                }
+            });
 
-            supportLinkWrapper.addEventListener('mouseleave', function() {
-                dropdown.style.display = 'none';
+            // 3. Fetch Safety Tips on Safety Link Hover
+            const safetyWrapper = document.querySelector('.safety-wrapper');
+            const safetyDropdown = document.querySelector('.dropdown-safety');
+            let safetyLoaded = false;
+            safetyWrapper.addEventListener('mouseenter', function() {
+                if (!safetyLoaded) {
+                    fetch('https://jsonplaceholder.typicode.com/posts?_limit=4')
+                        .then(response => response.json())
+                        .then(data => {
+                            safetyDropdown.innerHTML = ''; // Clear existing content
+                            data.forEach(post => {
+                                const link = document.createElement('a');
+                                link.className = 'dropdown-link';
+                                link.href = '#';
+                                link.textContent = post.title.substring(0, 20) + '...';
+                                safetyDropdown.appendChild(link);
+                            });
+                            safetyLoaded = true; // Prevent refetching on every hover
+                        })
+                        .catch(error => console.error('Error fetching safety tips:', error));
+                }
+            });
+
+            // 4. Fetch Latest Blog Posts on Blog Link Click
+            const blogLink = document.querySelector('.blog-link');
+            blogLink.addEventListener('click', function(e) {
+                e.preventDefault(); // Prevent default link behavior
+                fetch('https://jsonplaceholder.typicode.com/posts?_limit=5')
+                    .then(response => response.json())
+                    .then(data => {
+                        const titles = data.map(post => post.title).join('\n');
+                        alert(`Latest Blog Posts:\n${titles}`);
+                    })
+                    .catch(error => console.error('Error fetching blog posts:', error));
+            });
+
+            // 5. Fetch Career Openings on Careers Link Click
+            const careersLink = document.querySelector('.careers-link');
+            careersLink.addEventListener('click', function(e) {
+                e.preventDefault(); // Prevent default link behavior
+                fetch('https://jsonplaceholder.typicode.com/posts?_limit=3')
+                    .then(response => response.json())
+                    .then(data => {
+                        const jobs = data.map(post => post.title).join('\n');
+                        alert(`Career Openings:\n${jobs}`);
+                    })
+                    .catch(error => console.error('Error fetching career openings:', error));
             });
         });
     </script>
